@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:insert="~{/admin/include/headerAdmin}"></th:block>
+
+<meta charset="UTF-8">
+
+<title>Food Info</title>
+
+<h1><a href="admin_main"><img alt="foodNaviFont" class="foodNaviFont" src="/assets/images/foodNaviFont.png"></a></h1>
+
+<article id="box">
+    <h2>Food Insert</h2>
+    <form action="admin_food_insert" enctype="multipart/form-data" method="post">
+        <table>
+            <tr>
+                <th><label for="img">이미지 첨부 :</label></th>
+                <td><input accept="food_images/*" id="img" name="img" type="file"></td>
+            </tr>
+            <tr>
+                <th>이름</th>
+                <td><input name="name" type="text"/></td>
+            </tr>
+            <tr>
+                <th>칼로리(kcal)</th>
+                <td>
+                    <span id="span_kcal" name="span_kcal"/>
+                </td>
+
+            </tr>
+            <tr>
+                <th>탄수화물(g)</th>
+                <td>
+                    <span id="span_carb" name="span_carb"/>
+                </td>
+            </tr>
+            <tr>
+                <th>단백질(g)</th>
+                <td>
+                    <span id="span_prt" name="span_prt"/>
+                </td>
+            </tr>
+            <tr>
+                <th>지방(g)</th>
+                <td>
+                    <span id="span_fat" name="span_fat"/>
+                </td>
+            </tr>
+        </table>
+
+        
+     	<h2>재료</h2>
+     	<input class="button" id='btn-add-row' type="button" value="행 추가">    	  
+        
+        <table id="mytable">
+            <thead>
+	            <tr>
+	                <th>재료</th>
+	                <th>수량</th>
+	                <th></th>
+	            </tr>
+            </thead>
+            <tbody>				
+			</tbody>            
+        </table>
+
+        <script src="//code.jquery.com/jquery.min.js"></script>
+        <script>
+
+            $(document).ready(function () {
+                $('#btn-add-row').trigger('click');
+            });
+
+            $(document).on('keydown', function (event) {
+                if (event.key == "Enter" && document.activeElement.name === "quantity") {
+                    event.preventDefault();
+                    $('#mytable > tbody:last').append('<tr><td><input type="text" name="ingredient"></td>' +
+                        '<td><input type="number" name="quantity" min="0">g</td>' +
+                        '<td><input type="button" class="button" id="btn-delete-row" value="삭제"></td></tr>');
+                    initAutocomplete();
+                    $('input[name="ingredient"]').focus();
+                } else if (event.key == "Enter") {
+                    $('input[name="quantity"]').focus();
+                }
+            });
+
+            $('#btn-add-row').click(function () {
+                var time = new Date().toLocaleTimeString();
+                event.preventDefault();
+                $('#mytable > tbody:last').append('<tr><td><input type="text" name="ingredient"></td>' +
+                    '<td><input type="number" name="quantity" min="0">g</td>' +
+                    '<td><input type="button" class="button" id="btn-delete-row" value="삭제"></td></tr>');
+                initAutocomplete();
+            });
+
+
+            $('#mytable').on('click', '#btn-delete-row', function () {
+                event.preventDefault();
+                $(this).closest('tr').remove();
+            });
+        </script>
+        <!-- 영양성분 합산 테스트용 코드 -->
+        <script th:inline="javascript">
+            function ingredientCal() {
+                var calData = [];
+                $("#mytable tr").each(function () {
+                    var name = $(this).find("input[name='ingredient']").val();
+                    var amount = $(this).find("input[name='quantity']").val();
+
+                    // 데이터가 유효한지 확인하고 추가
+                    if (name && amount) {
+                        calData.push({
+                            name: name,
+                            amount: amount
+                        });
+                    }
+                });
+
+                // AJAX 요청 전 데이터 확인
+                console.log("Sending data:", JSON.stringify(calData));
+
+                $.ajax({
+                    method: 'POST',
+                    url: '/admin_igrd_cal',
+                    data: JSON.stringify(calData),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        // alert('전송성공');
+                        // console.log("Response:", response);
+
+                        if (response && response.kcal !== undefined && response.carb !== undefined &&
+                            response.prt !== undefined && response.fat !== undefined) {
+                            $("#span_kcal").text(response.kcal);
+                            $("#span_carb").text(response.carb);
+                            $("#span_prt").text(response.prt);
+                            $("#span_fat").text(response.fat);
+                        } else {
+                            console.error("Unexpected response format:", response);
+                            alert('Unexpected response format');
+                        }
+                    },
+                    error: function (error) {
+                        alert('전송실패');
+                        console.error("AJAX error:", error);
+                    }
+                });
+            }
+
+            $(document).on('focusout', 'input[name="quantity"]', function () {
+                var $this = $(this);
+                var quantity = $this.val();
+                var ingredient = $this.closest('tr').find('input[name="ingredient"]').val();
+
+                console.log('Current input element:', $this);
+                console.log('Quantity:', quantity);
+                console.log('Ingredient:', ingredient);
+
+                if (ingredient !== undefined && ingredient !== null) {
+                    ingredientCal();  // 필요한 경우 함수를 직접 호출
+                } else {
+                    console.error('Ingredient is null or undefined');
+                }
+            });
+
+
+            var alertShown = false;
+
+            $(document).on('focusout', 'input[name="quantity"]', function () {
+                var $this = $(this);  // $(this)를 변수로 저장하여 반복 호출을 줄임
+                var quantity = $this.val();  // 현재 quantity 입력값을 가져옴
+
+                function checkIngredient() {
+                    var ingredient = $this.closest('tr').find('input[name="ingredient"]').val();  // 같은 행에서 ingredient 값을 가져옴
+                    if (ingredient) {
+                        ingredientCal(ingredient, quantity);
+                        console.log('Ingredient:', ingredient, 'Quantity:', quantity);
+                    } else {
+                        console.error('Ingredient is null or undefined, retrying...');
+                        setTimeout(checkIngredient, 50);  // 50ms 후 다시 시도
+                    }
+                }
+
+                // 최초 체크
+                checkIngredient();
+            });
+
+
+        </script>
+        <!-- 영양성분 합산 테스트용 코드 -->
+        <div class="field">
+            <label for="foodType">식단 종류</label>
+            <select id="foodType" name="foodType">
+                <option value="main">메인 요리</option>
+                <option value="side">사이드 요리</option>
+                <option value="dessert">디저트</option>
+            </select>
+        </div>
+        <div class="field">
+            <label for="n">기준량</label>
+            <input type="number" name="n" id="n" value=1 min=1 max=99 >
+        </div>
+
+
+        <div class="adminButton">
+            <input class="button" type="submit" value="등록하기">
+            <input class="button" type="reset" value="다시하기">
+        </div>
+    </form>
+    <a href="admin_food_list">
+        <button>등록취소</button>
+    </a>
+</article>
+<th:block th:insert="~{/includes/footer}"></th:block>
+
+<link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="/assets/js/autocomplete.js"></script>

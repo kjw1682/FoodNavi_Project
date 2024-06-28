@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	 <script th:inline="javascript">
+        /*<![CDATA[*/
+        var message = /*[[${msg}]]*/ '';
+        alert(message);
+        window.location.href = "user_login_form";
+        /*]]>*/
+    </script>
+</body>
+</html>

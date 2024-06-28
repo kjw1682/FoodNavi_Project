@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:insert="~{/includes/headerMain}"></th:block>
+<meta charset="UTF-8">
+<script th:inline="javascript">
+    function foodRecord() {
+		var foodRecord = {
+			fseq1: $("#fseq1").val() != null? $("#fseq1").val() : 0,
+			fseq2: $("#fseq2").val() != null? $("#fseq2").val() : 0,
+			fseq3: $("#fseq3").val() != null? $("#fseq3").val() : 0,
+			score1: $("#score1").val() != null? $("#score1").val() : 0,
+			score2: $("#score2").val() != null? $("#score2").val() : 0,
+			score3: $("#score3").val() != null? $("#score3").val() : 0,
+			amount1: $("#amount1").val() != null? $("#amount1").val() : 0,
+			amount2: $("#amount2").val() != null? $("#amount2").val() : 0,
+			amount3: $("#amount3").val() != null? $("#amount3").val() : 0,
+			checked1: $("#checked1").val() != null? $("#checked1").val() : "false",
+			checked2: $("#checked2").val() != null? $("#checked2").val() : "false",
+			checked3: $("#checked3").val() != null? $("#checked3").val() : "false"
+		};
+
+        $.ajax({
+            type: "POST",
+            url: "/food_recommend_record",
+            data: JSON.stringify(foodRecord),
+            contentType: 'application/json',
+            success: function (response) {
+                alert(response.message);
+				console.log("response" + response);
+				window.location.href="/foodTodayHistory_view"
+            },
+            error: function (error) {
+                alert("기록에 실패했습니다.");
+				console.log("error" + error);
+            }
+        });
+    }
+</script>
+<form>
+<h1><a href="/mainpage"><img src="/assets/images/foodNaviFont.png" alt="foodNaviFont" class="foodNaviFont"></a></h1>
+
+<article class="foodRecommend">
+	<input type="hidden" id="arrow_action" name="arrow_action" value=0>
+	<input type="hidden" id="amount_action" name="amount_action" value=0>
+	<input type="hidden" id="fseq1Original" name="fseq1Original" th:value="${foodRecommendVo1.listPossible} ? ${foodRecommendVo1.foodRecommendList[foodRecommendVo1.index-1].food.fseq} : 0">
+	<input type="hidden" id="fseq2Original" name="fseq2Original" th:value="${foodRecommendVo2.listPossible} ? ${foodRecommendVo2.foodRecommendList[foodRecommendVo2.index-1].food.fseq} : 0">
+	<input type="hidden" id="fseq3Original" name="fseq3Original" th:value="${foodRecommendVo3.listPossible} ? ${foodRecommendVo3.foodRecommendList[foodRecommendVo3.index-1].food.fseq} : 0">
+	<input type="hidden" id="score1" name="score1" th:value="${foodRecommendVo1.listPossible} ? ${foodRecommendVo1.foodRecommendList[foodRecommendVo1.index-1].scoreView} : 0">
+	<input type="hidden" id="score2" name="score2" th:value="${foodRecommendVo2.listPossible} ? ${foodRecommendVo2.foodRecommendList[foodRecommendVo2.index-1].scoreView} : 0">
+	<input type="hidden" id="score3" name="score3" th:value="${foodRecommendVo3.listPossible} ? ${foodRecommendVo3.foodRecommendList[foodRecommendVo3.index-1].scoreView} : 0">
+	<input type="hidden" id="checked1" name="checked1" value="false">
+	<input type="hidden" id="checked2" name="checked2" value="false">
+	<input type="hidden" id="checked3" name="checked3" value="false">
+    <div class="section" id="section1" onclick="click_section(1)" th:if="${foodRecommendVo1.listPossible}">
+        <div class="arrow">
+            <img class="arrowL" id="arrowL1" src="/assets/images/arrowL.png">
+            <img class="arrowR" id="arrowR1" src="/assets/images/arrowR.png">
+        </div>
+
+        <img class="checkmark" src="/assets/images/check.png">
+        <h2 class="major">메인 요리</h2>
+
+        <div id="food_info1">
+	        <table class="food-info">
+				<block th:each="foodVo, iterStat : ${foodRecommendVo1.foodRecommendList}" th:if="${foodRecommendVo1.index == iterStat.count}">
+					<input type="hidden" id="fseq1" name="fseq1" th:value="${foodVo.food.fseq}"/>
+					<tr>
+						<img class="foodImg" src="/assets/images/cooker.png" th:if="${foodVo.food.img == null}">
+						<img class="foodImgR" th:src="@{/assets/foodimages/} + ${foodVo.food.img}" th:if="${foodVo.food.img != null}">
+					</tr>
+		            <tr><span class="food-name" th:text="${foodVo.food.name}"></span>
+		            	<!-- r1 : 첫 번째 리스트 상세보기 -->
+						<a th:href="@{food_detail(fseq=${foodVo.food.fseq}, type=r1)}">
+							<img src="/assets/images/reading-glasses.png" class="foodDetailGo" title="상세보기" alt="상세보기">
+						</a>
+					</tr>
+		            <tr>
+		                <td style="width:40%">칼로리</td>
+		                <td><span class="calories" th:text="${foodVo.kcal}"></span>kcal</td>
+		            </tr>
+		            <tr>
+		                <td>탄수화물</td>
+		                <td><span class="carbs" th:text="${foodVo.carb}"></span>g</td>
+		            </tr>
+		            <tr>
+		                <td>단백질</td>
+		                <td><span class="protein" th:text="${foodVo.prt}"></span>g</td>
+		            </tr>
+		            <tr>
+		                <td>지방</td>
+		                <td><span class="fat" th:text="${foodVo.fat}"></span>g</td>
+		            </tr>
+		            <tr>
+		                <td>추천점수</td>
+		                <td>
+							<span class="satisfaction" th:title="${foodVo.scoreView}+'%'" th:alt="${foodVo.scoreView}+'%'">
+						      	<img class="star" th:if="${foodVo.starScore == 0}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 1}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 2}" src="/assets/images/star-full.png">
+						    	<img class="star" th:if="${foodVo.starScore <= 2}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 3}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 4}" src="/assets/images/star-full.png">
+						    	<img class="star" th:if="${foodVo.starScore <= 4}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 5}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 6}" src="/assets/images/star-full.png">
+						    	<img class="star" th:if="${foodVo.starScore <= 6}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 7}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 8}" src="/assets/images/star-full.png">
+						    	<img class="star" th:if="${foodVo.starScore <= 8}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 9}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 10}" src="/assets/images/star-full.png">
+						    </span>
+					    </td>
+		            </tr>
+		            <tr>
+		                <td>수량</td>
+		                <td>
+						    <span class="quantity">
+						        <button class="decrease" onclick="change_amount(1); return false"><img class="pmIcon" src="/assets/images/minus.png"></button>
+						        <input class="quantity-input" id="amount1" min="1" max="99" type="number" value="1" readonly>
+						        <button class="increase" onclick="change_amount(2); return false"><img class="pmIcon" src="/assets/images/plus.png"></button>
+						    </span>
+		                </td>
+		            </tr>
+	            </block>
+	        </table>
+        </div>
+    </div>
+
+    <div class="section" id="section2" onclick="click_section(2)" th:if="${foodRecommendVo2.listPossible}">
+        <div class="arrow">
+            <img class="arrowL" id="arrowL2" src="/assets/images/arrowL.png">
+            <img class="arrowR" id="arrowR2" src="/assets/images/arrowR.png">
+        </div>
+
+        <img class="checkmark" src="/assets/images/check.png">
+        <h2 class="major">사이드 요리</h2>
+        <div id="food_info2">
+	        <table class="food-info">
+				<block th:each="foodVo, iterStat : ${foodRecommendVo2.foodRecommendList}" th:if="${foodRecommendVo2.index == iterStat.count}">
+					<input type="hidden" id="fseq2" name="fseq2" th:value="${foodVo.food.fseq}"/>
+					<tr>
+						<img class="foodImg" src="/assets/images/food.png" th:if="${foodVo.food.img == null}">
+						<img class="foodImgR" th:src="@{/assets/foodimages/} + ${foodVo.food.img}" th:if="${foodVo.food.img != null}">
+					</tr>
+		            <tr><span class="food-name" th:text="${foodVo.food.name}"></span>
+		            	<!-- r2 : 두 번째 리스트 상세보기 -->
+						<a th:href="@{food_detail(fseq=${foodVo.food.fseq}, type=r2)}">
+							<img src="/assets/images/reading-glasses.png" class="foodDetailGo" title="상세보기" alt="상세보기">
+						</a>
+					</tr>
+		            <tr>
+		                <td style="width:40%">칼로리</td>
+		                <td><span class="calories" th:text="${foodVo.kcal}"></span>kcal</td>
+		            </tr>
+		            <tr>
+		                <td>탄수화물</td>
+		                <td><span class="carbs" th:text="${foodVo.carb}"></span>g</td>
+		            </tr>
+		            <tr>
+		                <td>단백질</td>
+		                <td><span class="protein" th:text="${foodVo.prt}"></span>g</td>
+		            </tr>
+		            <tr>
+		                <td>지방</td>
+		                <td><span class="fat" th:text="${foodVo.fat}"></span>g</td>
+		            </tr>
+		            <tr>
+		                <td>추천점수</td>
+		                <td>
+							<span class="satisfaction" th:title="${foodVo.scoreView}+'%'" th:alt="${foodVo.scoreView}+'%'">
+						      	<img class="star" th:if="${foodVo.starScore == 0}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 1}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 2}" src="/assets/images/star-full.png">
+						    	<img class="star" th:if="${foodVo.starScore <= 2}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 3}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 4}" src="/assets/images/star-full.png">
+						    	<img class="star" th:if="${foodVo.starScore <= 4}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 5}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 6}" src="/assets/images/star-full.png">
+						    	<img class="star" th:if="${foodVo.starScore <= 6}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 7}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 8}" src="/assets/images/star-full.png">
+						    	<img class="star" th:if="${foodVo.starScore <= 8}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 9}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 10}" src="/assets/images/star-full.png">
+						    </span>
+					    </td>
+		            </tr>
+		            <tr>
+		                <td>수량</td>
+		                <td>
+						    <span class="quantity">
+						        <button class="decrease" onclick="change_amount(3); return false;"><img class="pmIcon" src="/assets/images/minus.png"></button>
+						        <input class="quantity-input" id="amount2" min="1" max="99" type="number" value="1" readonly>
+						        <button class="increase" onclick="change_amount(4); return false;"><img class="pmIcon" src="/assets/images/plus.png"></button>
+						    </span>
+		                </td>
+		            </tr>
+	            </block>
+	        </table>
+        </div>
+    </div>
+
+    <div class="section" id="section3" onclick="click_section(3)" th:if="${foodRecommendVo3.listPossible}">
+        <div class="arrow">
+            <img class="arrowL" id="arrowL3" src="/assets/images/arrowL.png">
+            <img class="arrowR" id="arrowR3" src="/assets/images/arrowR.png">
+        </div>
+
+        <img class="checkmark" src="/assets/images/check.png">
+        <h2 class="major">디저트</h2>
+        <div id="food_info3">
+	        <table class="food-info">
+				<block th:each="foodVo, iterStat : ${foodRecommendVo3.foodRecommendList}" th:if="${foodRecommendVo3.index == iterStat.count}">
+					<tr>
+						<img class="foodImg" src="/assets/images/snack.png" th:if="${foodVo.food.img == null}">
+						<img class="foodImgR" th:src="@{/assets/foodimages/} + ${foodVo.food.img}" th:if="${foodVo.food.img != null}">
+					</tr>
+					<input type="hidden" id="fseq3" name="fseq3" th:value="${foodVo.food.fseq}"/>
+		            <tr><span class="food-name" th:text="${foodVo.food.name}"></span>
+		            	<!-- r3 : 세 번째 리스트 상세보기 -->
+						<a th:href="@{food_detail(fseq=${foodVo.food.fseq}, type=r3)}">
+							<img src="/assets/images/reading-glasses.png" class="foodDetailGo" title="상세보기" alt="상세보기">
+						</a>
+					</tr>
+		            <tr>
+		                <td style="width:40%">칼로리</td>
+		                <td><span class="calories" th:text="${foodVo.kcal}"></span>kcal</td>
+		            </tr>
+		            <tr>
+		                <td>탄수화물</td>
+		                <td><span class="carbs" th:text="${foodVo.carb}"></span>g</td>
+		            </tr>
+		            <tr>
+		                <td>단백질</td>
+		                <td><span class="protein" th:text="${foodVo.prt}"></span>g</td>
+		            </tr>
+		            <tr>
+		                <td>지방</td>
+		                <td><span class="fat" th:text="${foodVo.fat}"></span>g</td>
+		            </tr>
+		            <tr>
+		                <td>추천점수</td>
+		                <td>
+							<span class="satisfaction" th:title="${foodVo.scoreView}+'%'" th:alt="${foodVo.scoreView}+'%'">
+						      	<img class="star" th:if="${foodVo.starScore == 0}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 1}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 2}" src="/assets/images/star-full.png">
+						    	<img class="star" th:if="${foodVo.starScore <= 2}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 3}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 4}" src="/assets/images/star-full.png">
+						    	<img class="star" th:if="${foodVo.starScore <= 4}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 5}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 6}" src="/assets/images/star-full.png">
+						    	<img class="star" th:if="${foodVo.starScore <= 6}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 7}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 8}" src="/assets/images/star-full.png">
+						    	<img class="star" th:if="${foodVo.starScore <= 8}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 9}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 10}" src="/assets/images/star-full.png">
+						    </span>
+					    </td>
+		            </tr>
+		            <tr>
+		                <td>수량</td>
+		                <td>
+						    <span class="quantity">
+						        <button class="decrease" onclick="change_amount(5); return false;"><img class="pmIcon" src="/assets/images/minus.png"></button>
+						        <input class="quantity-input" id="amount3" min="1" max="99" type="number" value="1" readonly>
+						        <button class="increase" onclick="change_amount(6); return false;"><img class="pmIcon" src="/assets/images/plus.png"></button>
+						    </span>
+		                </td>
+		            </tr>
+	            </block>
+	        </table>
+        </div>
+    </div>
+
+</article>
+</form>
+<a class="button" onclick="foodRecord()" id="foodRecord">기록</a>
+<div class="fixed-bottom">
+	<th:block th:insert="~{includes/toggleChat}"></th:block>
+</div>
+<!--<div class="search-container">-->
+<!--	<label> <input type="text" name="searchWord" class="searchWord">-->
+<!--	</label>-->
+
+<!--	<button type="submit" class="searchButton">검색</button>-->
+<!--</div>-->
+
+<th:block th:insert="~{includes/footer}"></th:block>
+<script src="/assets/js/foodRecommend.js/"></script>

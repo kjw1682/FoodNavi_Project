@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<th:block th:insert="~{/admin/include/headerAdmin}"></th:block>
+
+<meta charset="UTF-8">
+
+<title>Exercise_Admin</title>
+
+<h1><a href="admin_main"><img src="/assets/images/foodNaviFont.png" alt="foodNaviFont" class="foodNaviFont"></a></h1>
+
+<article id="box">
+    <form method="post" action="/admin_exercise_list">
+
+        <h2>운동 종류 추가</h2>
+        <table id="mytable">
+            <thead>
+            <tr>
+                <th>운동 이름</th>
+                <th>시간 당 소모 칼로리</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <input type="button" class="button" id='btn-add-row' value="행 추가">
+
+            </tbody>
+        </table>
+
+        <script src="//code.jquery.com/jquery.min.js"></script>
+        <script>
+
+            $(document).ready(function() {
+                $('#btn-add-row').trigger('click');
+            });
+
+            $(document).on('keydown', function (event) {
+                if (event.key == "Enter" && document.activeElement.name === "quantity") {
+                    event.preventDefault();
+                    // exerciseType, exerciseFomula 추가 컨트롤러 추가할때 참고하세요
+                    $('#mytable > tbody:last').append('<tr><td><input type="text" name="exerciseType"></td>' +
+                        '<td><input type="text" name="exerciseFomula"></td>' +
+                        '<td><input type="button" class="button" id="btn-delete-row" value="삭제"></td></tr>');
+                    $('input[name="exerciseType"]').focus();
+                } else if (event.key == "Enter") {
+                    $('input[name="exerciseFomula"]').focus();
+                }
+            });
+
+            $('#btn-add-row').click(function () {
+                var time = new Date().toLocaleTimeString();
+                event.preventDefault();
+                $('#mytable > tbody:last').append('<tr><td><input type="text" name="exerciseType"></td>' +
+                    '<td><input type="text" name="exerciseFomula"></td>' +
+                    '<td><input type="button" class="button" id="btn-delete-row" value="삭제"></td></tr>');
+            });
+
+
+            $('#mytable').on('click', '#btn-delete-row', function () {
+                event.preventDefault();
+                $(this).closest('tr').remove();
+            });
+
+            $(document).ready(function() {
+                // 운동 이름 입력 필드에 change 이벤트 바인딩
+                $(document).on('change', 'input[name="exerciseType"]', function() {
+                    // 현재 입력된 운동 이름
+                    var currentExerciseType = $(this).val();
+
+                    // 서버에 AJAX 요청을 보내 운동 이름을 조회
+                    $.ajax({
+                        url: '/checkExerciseType',  // 운동 이름을 조회하는 서버의 URL
+                        type: 'GET',
+                        data: { exerciseType: currentExerciseType },
+                        success: function(data) {
+                            // 서버에서 반환된 데이터를 사용하여 중복을 확인
+                            if (data.isDuplicated) {
+                                alert('중복된 운동 이름이 있습니다. 다른 이름을 입력해주세요.');
+                                $('input[name="exerciseType"]').val('');  // 현재 입력 필드의 값을 초기화
+                                $('input[name="exerciseType"]').focus();  // 현재 입력 필드에 포커스
+                            }
+                        }
+                    });
+                });
+            });
+        </script>
+
+
+        <div class="adminButton">
+            <input type="submit" class="button" value="등록하기">
+            <input type="reset" class="button" value="다시하기">
+        </div>
+    </form>
+    <a href="admin_main">
+        <button>등록취소</button>
+    </a>
+</article>
+<th:block th:insert="~{/includes/footer}"></th:block>
+
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="/assets/js/autocomplete.js"></script>

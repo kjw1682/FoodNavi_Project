@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<th:block th:insert="~{/includes/headerMain}"></th:block>
+
+<meta charset="UTF-8">
+<title>Board List</title>
+
+<h1>
+    <a href="/mainpage"><img src="/assets/images/foodNaviFont.png" alt="foodNaviFont" class="foodNaviFont"></a>
+</h1>
+
+<article id="box">
+
+    <h3><span th:text="${authorList[0].user.userid}"></span>님의 게시글 목록</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>제목</th>
+            <th>작성자</th>
+            <th>작성일시</th>
+            <th>조회수</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="board : ${authorList}">
+            <td>
+                <div class="board_list">
+                    <a th:href="@{'/board_detail/' + ${board.bseq}}"
+                       th:text="${board.title + ' ' + '[' + board.commentCount + ']'}"></a><!-- 댓글 수 출력 -->
+                </div>
+                <input type="hidden" id="bseq"
+                       name="bseq" th:value="${board.bseq}"/></td>
+            <td th:text="${board.user.userid}"></td>
+            <td
+                    th:text="${#dates.format(board.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${board.cnt}"></td>
+        </tr>
+
+
+        </tbody>
+    </table>
+
+    <h3><span th:text="${authorList[0].user.userid}"></span>님의 댓글 목록</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>댓글</th>
+            <th>작성일시</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="comment : ${commentList}">
+            <td>
+                <div class="board_list">
+                    <a th:href="@{'/board_detail/' + ${comment.board.bseq}}" th:text="${comment.content}"></a>
+                </div>
+            <td th:text="${#dates.format(comment.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        </tr>
+
+
+        </tbody>
+    </table>
+
+    <button onclick="window.location.href='/board_insert_form'" class="button">새로운
+        글 작성
+    </button>
+    <button onclick="window.location.href='/board_list'" class="button">리스트로 돌아가기
+    </button>
+
+</article>
+
+<div class="fixed-bottom">
+    <th:block th:insert="~{includes/toggleChat}"></th:block>
+</div>
+
+<th:block th:insert="~{/includes/footer}"></th:block>

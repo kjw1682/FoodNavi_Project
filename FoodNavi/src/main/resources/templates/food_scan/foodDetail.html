@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:insert="~{/includes/headerMain}"></th:block>
+<head>
+    <meta charset="UTF-8">
+    <title>Food Navigator</title>
+    <script crossorigin="anonymous"
+            integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+            src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+</head>
+<style>
+    table {
+        width: auto;
+    }
+</style>
+<body>
+<h2>Food Detail</h2>
+<form id="food_detail_form" method="post" name="food_detail_form">
+    <table>
+        <tr>
+            <th>이미지</th>
+            <td>
+                <img class="foodImg" src="/assets/images/nonImg.png" th:if="${foodVo.food.img == null}" th:width="500">
+                <img th:unless="${foodVo.food.img == null}" th:src="@{/assets/foodimages/} + ${foodVo.food.img}" th:width="500">
+            </td>
+        </tr>
+        <tr>
+            <th>이름</th>
+            <td>[[${foodVo.food.name}]]</td>
+        </tr>
+        <tr>
+            <th>칼로리</th>
+            <td th:text="${foodVo.kcal} + 'kcal /1인분'"></td>
+        </tr>
+        <tr>
+            <th th:rowspan="3">영양성분</th>
+            <td th:rowspan="3">
+                <canvas height="300vh" id="foodChart" width="300vw"></canvas>
+            </td>
+            <!--<th>탄수화물</th>-->
+            <!--<td>[[${foodVo.food.foodDetail.carb}]] g</td>-->
+        </tr>
+        <tr>
+            <!--<th>단백질</th>-->
+            <!--<td>[[${foodVo.food.foodDetail.prt}]] g</td>-->
+        </tr>
+        <tr>
+            <!--<th>지방</th>-->
+            <!--<td>[[${foodVo.food.foodDetail.fat}]] g</td>-->
+        </tr>
+        <tr>
+            <th>재료 <img id="ingredientHeader" src="/assets/images/triangleU.png" style="width: 20px"></th>
+            <td id="ingredientContent" style="display: none;">
+                - [[${foodVo.food.foodDetail.n}]]인분 기준 -<br>
+                <block th:each="foodIngredient : ${foodVo.foodIngredientList}">
+                    <span>[[${foodIngredient.ingredient.name}]] [[${foodIngredient.amount}]]g</span><br>
+                </block>
+            </td>
+        </tr>
+        <th:block th:if="${foodSRVo.recommend}">
+            <tr>
+                <th>추천점수</th>
+                <td>
+	            	<span class="satisfaction" th:alt="${foodVo.scoreView+'%'}" th:title="${foodVo.scoreView+'%'}">
+				    	<img class="star" src="/assets/images/star-empty.png" th:if="${foodVo.starScore == 0}">
+				    	<img class="star" src="/assets/images/star-half.png" th:if="${foodVo.starScore == 1}">
+				    	<img class="star" src="/assets/images/star-full.png" th:if="${foodVo.starScore >= 2}">
+				    	<img class="star" src="/assets/images/star-empty.png" th:if="${foodVo.starScore <= 2}">
+				    	<img class="star" src="/assets/images/star-half.png" th:if="${foodVo.starScore == 3}">
+				    	<img class="star" src="/assets/images/star-full.png" th:if="${foodVo.starScore >= 4}">
+				    	<img class="star" src="/assets/images/star-empty.png" th:if="${foodVo.starScore <= 4}">
+				    	<img class="star" src="/assets/images/star-half.png" th:if="${foodVo.starScore == 5}">
+				    	<img class="star" src="/assets/images/star-full.png" th:if="${foodVo.starScore >= 6}">
+				    	<img class="star" src="/assets/images/star-empty.png" th:if="${foodVo.starScore <= 6}">
+				    	<img class="star" src="/assets/images/star-half.png" th:if="${foodVo.starScore == 7}">
+				    	<img class="star" src="/assets/images/star-full.png" th:if="${foodVo.starScore >= 8}">
+				    	<img class="star" src="/assets/images/star-empty.png" th:if="${foodVo.starScore <= 8}">
+				    	<img class="star" src="/assets/images/star-half.png" th:if="${foodVo.starScore == 9}">
+				    	<img class="star" src="/assets/images/star-full.png" th:if="${foodVo.starScore >= 10}">
+    				</span>
+                </td>
+            </tr>
+        </th:block>
+        <tr>
+            <th>좋아요</th>
+            <td id="rcdCount" onclick="rcd_update(); return false;">
+                <img alt="좋아요" class="foodLike" src="/assets/images/like.png" title="좋아요">
+                <span th:if="${rcdStatus.rcdStatus == 0}">[[${rcdStatus.rcdCount}]]</span>
+                <span th:if="${rcdStatus.rcdStatus == 1}">[[${rcdStatus.rcdCount}]]</span>
+            </td>
+        </tr>
+    </table>
+    <input id="fseq" name="fseq" th:value="${foodVo.food.fseq}" type="hidden">
+    <input id="resultType" name="resultType" th:value="${foodSRVo.resultType}" type="hidden">
+    <input onclick="history_in()" type="button" value="기록하기">
+    <a th:href="@{food_scan(page=${pageInfo.number +1})}" th:if="${foodSRVo.resultType == 's'}">
+        <input type="button" value="목록 보기">
+    </a>
+    <a th:href="@{food_recommend(page=${1})}" th:if="${foodSRVo.resultType == 'r'}">
+        <input type="button" value="이전">
+    </a>
+    <a href="javascript:history.back()" th:if="${foodSRVo.resultType == 'c'}">
+        <input type="button" value="돌아가기">
+    </a>
+    <a th:href="@{user_mypage_view(page=${pageInfo.number +1})}" th:if="${foodSRVo.resultType == 'm'}">
+        <input type="button" value="돌아가기">
+    </a>
+</form>
+<div class="fixed-bottom">
+    <th:block th:insert="~{includes/toggleChat}"></th:block>
+</div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/assets/js/foodDetailChart.js"></script>
+<script th:inline="javascript">
+
+    function history_in() {
+        $("#food_detail_form").attr("action", "history_in_from_detail").submit();
+    }
+
+
+    function rcd_update() {
+        $.ajax({
+            type: 'GET',
+            url: '/rcd_update',
+            dataType: 'json',
+            data: $("#fseq"),
+            contentType: 'application/x-www-form-urlencoded; charset=utf-8',
+            success: function (data) {
+                var result = data.rcdStatus;
+                var count = data.rcdCount;
+                var commentCount = data.commentCount;
+                var html = "";
+                var rcdCont = document.getElementById('rcdCount');
+                if (result == 1) {
+                    html =
+                        "<img src=\"/assets/images/like.png\" class=\"foodLike\" title=\"좋아요\" alt=\"좋아요\">" +
+                        "<span> " + count + "</span>"
+                    rcdCont.style.opacity = 1;
+                    localStorage.setItem('opacity', 1);
+                } else if (result == 0) {
+                    html =
+                        "<img src=\"/assets/images/like.png\" class=\"foodLike\" title=\"좋아요\" alt=\"좋아요\">" +
+                        "<span> " + count + "</span>"
+                    rcdCont.style.opacity = 0.5;
+                    localStorage.setItem('opacity', 0.5);
+                }
+                if (result >= 0) {
+                    $("#rcdCount").html(html);
+                }
+            },
+            error: function () {
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var rcdCont = document.getElementById('rcdCount');
+        var opacity = localStorage.getItem('opacity');
+        if (opacity !== null) {
+            rcdCont.style.opacity = opacity;
+        }
+    });
+
+
+    document.getElementById('ingredientHeader').addEventListener('click', function () {
+        var img = this;
+        if (img.src.match('triangleU.png')) {
+            img.src = '/assets/images/triangleD.png';
+        } else {
+            img.src = '/assets/images/triangleU.png';
+        }
+    });
+
+    document.getElementById('ingredientHeader').addEventListener('click', function () {
+        var content = document.getElementById('ingredientContent');
+        if (content.style.display === "none") {
+            content.style.display = "block";
+
+        } else {
+            content.style.display = "none";
+        }
+    });
+
+    document.getElementById('rcdCount').addEventListener('click', function () {
+
+    });
+</script>
+</html>

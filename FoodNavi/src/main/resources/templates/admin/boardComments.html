@@ -1,0 +1,159 @@
+<!-- 댓글 영역 -->
+<div class="container">
+	<form id="commentForm" name="commentForm" method="post">
+		<input type="hidden" id="bseq" name="bseq" th:value="${board.bseq}"/>
+<div class="container">
+	<form id="commentListForm" name="commentListForm" method="get">
+
+		<div id="commentList">
+			<!--  댓글 출력 영역 -->
+		</div>
+	</form>
+
+
+	<!-- 페이지 처리 영역 -->
+	<div>
+		<ul id="pagination">
+		</ul>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		getCommentsAndCurrentUser();
+	});
+
+	// getCommentsAndCurrentUser 함수 정의
+	function getCommentsAndCurrentUser() {
+		var bseq = $("#bseq").val(); // bseq 값을 가져오기
+
+		$.ajax({
+			type: 'GET',
+			url: '/admin_board_detail/commentsList',
+			dataType: 'json',
+			data: {bseq: bseq},
+			success: function (data) {
+				var parentComments = data.parentComments;
+				var repliesMap = data.repliesMap;
+				// 가져온 댓글 목록과 사용자 정보를 이용하여 화면에 표시
+				showHTML(parentComments, repliesMap);
+
+			},
+			error: function () {
+				alert("댓글 목록을 조회하지 못했습니다.");
+			}
+		});
+
+	}
+
+
+	function showHTML(parentComments, repliesMap) {
+		var html = "";
+		if (parentComments.length > 0) {
+			parentComments.forEach(function (parentComment) {
+				// 부모 댓글 섹션
+				html += "<div id=\"parent_comment_" + parentComment.cseq + "\">"; // 각 부모 댓글에 대해 고유한 id 부여
+				html += "<strong>작성자: " + parentComment.user.userid + "</strong>&nbsp;&nbsp;&nbsp; ";
+				html += "<span id=\"write_date\"> 작성일: " + displayTime(parentComment.createdAt) + "</span><br>";
+				html += parentComment.content;
+
+				html += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='#' onclick=\"deleteComment(" + parentComment.cseq +"); return false\" class='button' id='commentsDel'>삭제</a>";
+
+				html += "<br></div>";
+				// 자식 댓글 섹션
+				if (repliesMap[parentComment.cseq] && repliesMap[parentComment.cseq].length > 0) {
+					repliesMap[parentComment.cseq].forEach(function (reply) {
+						html += "<div id=\"child_comment_" + reply.cseq + "\">"; // 각 자식 댓글에 대해 고유한 id 부여
+						html += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>작성자: " + reply.user.userid + "</strong>&nbsp;&nbsp;&nbsp; ";
+						html += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id=\"write_date\"> 작성일: " + displayTime(reply.createdAt) + "</span><br>";
+						html += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+ reply.content;
+
+						html += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='#' onclick=\"deleteComment(" + reply.cseq + "); return false\" class='button' id='commentsDel'>삭제</a>";
+
+						html += "<br></div>";
+					});
+				}
+			});
+		} else {
+			html += "<div>";
+			html += "<h3>등록된 댓글이 없습니다.</h3>";
+			html += "</div>";
+		}
+
+		$("#commentList").html(html); /* 브라우저에 출력 */
+	}
+
+
+
+	/*
+     ** 입력 파라미터:
+     **     timeValue - 상품평 등록 시간
+     */
+	function displayTime(timeValue) {
+		var today = new Date();
+
+		// timeValue를 Date객체로 변환
+		var dateObj = new Date(timeValue);
+
+		console.log("timeValue=" + timeValue);
+		console.log("dateObj=" + dateObj);
+
+		var timeGap = today.getTime() - dateObj.getTime();
+
+		// 오늘 작성된 것은 작성시각으로, 그 외는 작성일자로 표시
+		if (dateObj.getFullYear() == today.getFullYear() && dateObj.getMonth() == today.getMonth() && dateObj.getDate() == today.getDate()) {
+			// timeGap이 24시간 이내인지 판단
+			//if (timeGap < (1000 * 60 * 60 * 24)) {  // 시, 분, 초를 구함
+			var hh = dateObj.getHours();
+			var mi = dateObj.getMinutes();
+			var ss = dateObj.getSeconds();
+			console.log("hh=" + hh);
+			console.log("mi=" + mi);
+			console.log("ss=" + ss);
+
+			//return hh + ':' + mi + ':' + ss;
+			return [(hh > 9 ? '' : '0') + hh, ':', (mi > 9 ? '' : '0') + mi, ':',
+				(ss > 9 ? '' : '0') + ss].join('');
+		} else {
+			var yy = dateObj.getFullYear();
+			var mm = dateObj.getMonth() + 1;
+			var dd = dateObj.getDate();
+
+			//return yy + "-" + mm + "-" + dd;
+			return [yy, '/', (mm > 9 ? '' : '0') + mm, '/', (dd > 9 ? '' : '0') + dd].join('');
+		}
+
+	}
+
+	/*
+     **댓글 등록
+     */
+
+
+	function deleteComment(cseq) {
+		if (confirm("댓글을 삭제하시겠습니까?")) {
+			$.ajax({
+				type: 'POST',
+				url: '/board_detail/delete',
+				dataType: 'json',
+				data: {
+					cseq: cseq,
+				},
+				contentType: 'application/x-www-form-urlencoded; charset=utf-8',
+				success: function (data) {
+					if (data.result == 'success') {
+						getCommentsAndCurrentUser(); // 댓글 목록 새로고침
+					} else {
+						alert("댓글 삭제에 실패했습니다.");
+					}
+				},
+				error: function (request, status, error) {
+					alert("댓글 삭제 중 오류가 발생했습니다.");
+				}
+			});
+		}
+	}
+
+
+
+</script>

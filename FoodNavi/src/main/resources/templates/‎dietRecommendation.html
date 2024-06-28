@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<th:block th:insert="~{/includes/header}"></th:block>
+<meta charset="UTF-8">
+
+<h1><a href="/mainpage">FoodNavi</a></h1>
+<!-- dietRecommendation -->
+<article id="box">
+    <h2 class="major">식단 추천</h2>
+    <form method="post" action="#">
+        <div class="fields">
+            <div class="field half">
+                <div class=" field half radio-button">
+                    <input class="btn" type="checkbox" name="mealTime" id="morning" value="morning"/>
+                    <label for="morning">아침</label>
+                </div>
+                <div class="field half radio-button">
+                    <input class="btn" type="checkbox" name="mealTime" id="lunch" value="lunch"/>
+                    <label for="lunch">점심</label>
+                </div>
+                <div class="field half radio-button">
+                    <input class="btn" type="checkbox" name="mealTime" id="dinner" value="dinner"/>
+                    <label for="dinner">저녁</label>
+                </div>
+                <div class="field half radio-button">
+                    <input class="btn" type="checkbox" name="mealTime" id="snack" value="snack"/>
+                    <label for="snack">간식</label>
+                </div>
+
+            </div>
+        </div>
+    </form>
+</article>
+
+
+<th:block th:insert="~{includes/footer}"></th:block>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<th:block th:insert="~{/includes/headerMain}"></th:block>
+<meta charset="UTF-8">
+<script th:inline="javascript">
+function historyRecord() {
+    var historyData = [];
+
+    // 각 행의 데이터를 객체로 만들어 배열에 추가
+    $("#box table tr").each(function() {
+        var food_name = $(this).find("input[name='history_food_name']").val();
+        var serveNumber = $(this).find("input[name='history_serveNumber']").val();
+
+        historyData.push({
+            food_name: food_name,
+            serveNumber: serveNumber
+        });
+    });
+
+    // historyData 배열을 JSON 문자열로 변환하여 서버로 전송
+    $.ajax({
+        type: "POST",
+        url: "/history_confirmed_record",
+        data: JSON.stringify(historyData),
+        contentType: "application/json",
+        success: function(response) {
+            alert("성공적으로 전송되었습니다.");
+            window.location.href="/foodHistory_view";
+        },
+        error: function(error) {
+            alert("오늘 이미 기록한 음식입니다.");
+        }
+    });
+}
+
+
+function subtract_history(button) {
+	var historyData = [];
+	var row = $(button).closest('tr');
+	$("#box table tr").each(function() {
+		var food_name = $(this).find("input[name='history_food_name']").val();
+		var serveNumber = $(this).find("input[name='history_serveNumber']").val();
+		var hseq = row.find("input[name='nc_history_hseq']").val();
+		historyData.push({
+			food_name: food_name,
+			serveNumber: serveNumber,
+			hseq: hseq
+		});
+	});
+
+	$.ajax({
+		type: "POST",
+		url: "/delete_history_record",
+		data: JSON.stringify(historyData),
+		contentType: "application/json",
+		success: function(response) {
+			alert("성공적으로 삭제했습니다.");
+			row.remove();
+		},
+		error: function(error) {
+			alert("삭제에 실패했습니다.");
+		}
+	});
+}
+
+function goBack() {
+	history.go(-1);
+}
+</script>
+<h1><a href="/mainpage"><img src="/assets/images/foodNaviFont.png" alt="foodNaviFont" class="foodNaviFont"></a></h1>
+<!-- myChange -->
+<article id="box">
+	<h2 class="major">[[${userVo.user.name}]] 님의 <span th:text="${today}"></span>기준 기록 확정 대기</h2>
+    <!--action 비워두도록 하겠습니다. 컨트롤러를 참고해서 넣어주세요.-->
+    <form method="post" action="/history_confirmed_record">
+        <div class="fields">
+            <div class="field">
+            <table>
+            	<tr th:each="nc_history, iterStat : ${notConfirmedHistoryList}" th:if="${iterStat.index < 10}">
+            		<td>
+            			<h2 class="major">승인 대기 목록</h2>
+		                <input type="text" name="history_food_name" id="history_food_name" th:value="${nc_history.food.name}" readOnly>
+						<input type="hidden" name="nc_history_hseq" th:value="${nc_history.hseq}">
+            		</td>
+            		<td>
+            			<h2 class="major">수량</h2>
+		                <input type="text" name="history_serveNumber" id="history_serveNumber" th:value="${nc_history.serveNumber}" readonly>
+            		</td>
+            		<td>
+            			<h2 class="major">제외</h2>
+            			<input type="button" id="delete_button" th:value="제외" onclick="subtract_history(this)">
+            		</td>
+            		<!--
+            		<td>
+	            		<h2 class="major">칼로리</h2>
+	                	<p id="food_kcal" th:text="${nc_history.food.foodDetail.kcal}"></p>
+            		</td>
+            		<td>
+	            		<h2 class="major">탄수화물</h2>
+	                	<p id="food_carb" th:text="${nc_history.food.foodDetail.carb}"></p>
+            		</td>
+            		<td>
+	            		<h2 class="major">단백질</h2>
+	                	<p id="food_prt" th:text="${nc_history.food.foodDetail.prt}"></p>
+            		</td>
+            		<td>
+	            		<h2 class="major">지방</h2>
+	                	<p id="food_fat" th:text="${nc_history.food.foodDetail.fat}"></p>
+            		</td>
+            		-->
+            	</tr>
+            </table>
+            </div>
+
+        </div>
+        <ul class="actions">
+            <li><input type="button" value="승인" class="button" onclick="historyRecord()"/></li>
+            <li><a href="/foodHistory_view" class="button">모든 기록 확인</a></li>
+        </ul>
+
+		<input type="button" value="이전" class="button" onclick="goBack()"/>
+
+
+    </form>
+</article>
+
+<th:block th:insert="~{includes/footer}"></th:block>

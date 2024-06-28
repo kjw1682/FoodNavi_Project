@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:insert="~{/includes/headeNoBg}"></th:block>
+    <meta charset="UTF-8">
+</head>
+<body>
+<img alt="loading" class="loading" src="/assets/images/loading.gif">
+<h1>식단을 가져오고 있습니다!</h1>
+<h2>잠시만 기다려주세요!</h2>
+
+<th:block th:insert="~{includes/footer}"></th:block>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery 추가 -->
+
+<script>
+    $(document).ready(function() {
+        window.location.href = "/food_recommend";
+    });
+</script>
+
+</body>
+</html>

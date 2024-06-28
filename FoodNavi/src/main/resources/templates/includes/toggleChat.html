@@ -1,0 +1,165 @@
+<!-- room2.html -->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<input name="userVo_user_name" th:value="${userVo.user.name}" type="hidden">
+<div class="chatBox" id="toggleButton">
+    <div class="container" id="app" v-cloak>
+        <div class="row">
+            <div class="col-md-12">
+                <h3>채팅방 리스트</h3>
+                <h4>로그인 아이디 : [[${userVo.user.name}]]</h4>
+            </div>
+        </div>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <label class="input-group-text">방제목</label>
+            </div>
+            <span class="search-container">
+                <input class="form-control" type="text" v-model="room_name" v-on:keyup.enter="createRoom">
+                <div class="input-group-append">
+                    <button @click="createRoom" class="btn btn-primary" type="button">채팅방 개설</button>
+                </div>
+            </span>
+            <div class="input-group-append">
+                <button @click="createBotRoom" class="chatBotConnection" type="button">챗봇연결</button>
+            </div>
+            <label class="input-group-text">생성된 방</label>
+            <table class="list-group">
+                <tr class="board_list" v-bind:key="item.roomId" v-for="item in chatrooms"
+                    v-on:click="enterRoom(item.roomId)">
+                    <td>{{ item.name }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <button class="button" id="chatClose" type="button">나가기</button>
+    <iframe id="roomDetailFrame" style="width:100%; height:700px; display: none;"></iframe>
+</div>
+
+<button class="primary" id="chatToggleButtonControl" type="submit">
+    <img alt="채팅 아이콘" id="chatToggleButtonControlImg" src="/assets/images/chat.png">
+</button>
+<script src="/assets/js/jquery.min.js"></script>
+<script src="/assets/js/chatToggle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16"></script>
+<script src="/webjars/axios/0.17.1/dist/axios.min.js"></script>
+<script>
+    var userVo_user_name = $('input[name=userVo_user_name]').val();
+    var roomName = "[[${roomName}]]";
+</script>
+<script>
+
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            room_name: '',
+            chatrooms: [],
+            userVo_user_name: userVo_user_name
+        },
+        created() {
+            this.findAllRoom();
+        },
+        methods: {
+            findAllRoom: function () {
+                axios.get('/chat/rooms').then(response => {
+                    this.chatrooms = response.data;
+                    // 챗봇 방은 userVo_user_name을 포함한 경우에만 저장
+                    this.chatrooms = this.chatrooms.filter(room => {
+                        if (room.name.includes("챗봇")) {
+                            return room.name.includes(this.userVo_user_name);
+                        }
+                        return true; // 챗봇 방이 아니면 그대로 포함
+                    });
+                });
+            },
+            createRoom: function () {
+                if ("" === this.room_name) {
+                    alert("방 제목을 입력해 주십시요.");
+                    return;
+                } else {
+                    var params = new URLSearchParams();
+                    params.append("name", this.room_name);
+                    axios.post('/chat/room', params)
+                        .then(
+                            response => {
+                                alert(response.data.name + "방 개설에 성공하였습니다.")
+                                this.room_name = '';
+                                this.findAllRoom();
+                            }
+                        )
+                        .catch(response => {
+                            alert("채팅방 개설에 실패하였습니다.");
+                        });
+                }
+            },
+
+            createBotRoom: function () {
+                var params = new URLSearchParams();
+                params.append("name", userVo_user_name + "의 챗봇");
+                localStorage.setItem('roomName', "챗봇상담");
+                axios.post('/chat/bot_room', params)
+                    .then(
+                        response => {
+                            alert(response.data.name + "이 연결되었습니다.")
+                            this.findAllRoom();
+                        }
+                    )
+                    .catch(response => {
+                        alert("챗봇 연결에 실패하였습니다.");
+                    });
+            },
+            enterRoom: function (roomId) {
+                var sender = prompt('대화명을 입력해 주세요.\n' + '대화명을 입력하지 않을 시 로그인하신정보( ' + userVo_user_name + ' ) 으로 입장합니다.');
+                if (sender != "") {
+                    localStorage.setItem('wschat.sender', sender);
+                    localStorage.setItem('wschat.roomId', roomId);
+                    document.getElementById('roomDetailFrame').style.display = "block";
+                    document.getElementById('roomDetailFrame').src = "/chat/room/enter/" + roomId;
+                    document.querySelector('.input-group').style.display = "none"; // 방에 들어가면 input-group이 안보이게 함
+                    document.getElementById('chatClose').style.display = "block"; // 방에 들어오면 나가기 버튼이 보임
+                } else {
+                    sender = userVo_user_name;
+                    localStorage.setItem('wschat.sender', sender);
+                    localStorage.setItem('wschat.roomId', roomId);
+                    document.getElementById('roomDetailFrame').style.display = "block";
+                    document.getElementById('roomDetailFrame').src = "/chat/room/enter/" + roomId;
+                    document.querySelector('.input-group').style.display = "none"; // 방에 들어가면 input-group이 안보이게 함
+                    document.getElementById('chatClose').style.display = "block"; // 방에 들어오면 나가기 버튼이 보임
+                }
+                if (sender == null) {
+                    alert('대화명을 입력해 주세요.');
+                    return this.enterRoom(roomId);
+                }
+            }
+        }
+    });
+    document.getElementById('chatClose').addEventListener('click', function () {
+        // '나가기' 버튼을 클릭하면 '나가기가기' 버튼을 숨깁니다.
+        this.style.display = "none";
+        // 'roomDetailFrame'을 숨깁니다.
+        document.getElementById('roomDetailFrame').style.display = "none";
+        // input-group을 다시 보이게 합니다.
+        document.querySelector('.input-group').style.display = "block";
+    });
+
+    // 'roomDetailFrame'의 display 속성이 변경될 때마다 호출되는 함수를 정의합니다.
+    function checkFrameVisibility() {
+        var frame = document.getElementById('roomDetailFrame');
+        var button = document.getElementById('chatClose');
+
+        if (frame.style.display === "block") {
+            button.style.display = "block";
+        } else {
+            button.style.display = "none";
+        }
+    }
+
+
+    document.getElementById('roomDetailFrame').addEventListener('change', checkFrameVisibility);
+    document.getElementById('chatClose').addEventListener('click', function () {
+        document.getElementById('roomDetailFrame').style.display = "none";
+        document.querySelector('.input-group').style.display = "block";
+    });
+</script>
+
+<script src="/assets/js/chatToggle.js"></script>

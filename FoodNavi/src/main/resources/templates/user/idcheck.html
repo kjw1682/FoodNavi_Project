@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>아이디 중복 체크</title>
+<th:block th:insert="~{/includes/headerLogin}"></th:block>
+<script type="text/javascript" th:inline="javascript">
+
+function idok(){
+	/*<![CDATA[*/
+  var id = /*[[${userid}]]*/'';
+  opener.join.userid.value=formm.userid.value;
+  self.close();
+  /*]]>*/
+}
+/*<![CDATA[*/
+	var msg = /*[[${msg}]]*/'';
+	if (msg != '' && msg != null) {
+		alert(msg);
+	}
+/*]]>*/
+</script>
+</head>
+<body>
+<div id="wrap">
+  <h1>ID 중복확인</h1>
+  <form method=get name=formm id="theform" style="margin-right:0 "
+  		action="id_check_form" >
+    User ID <input type=text name="userid" th:value="${userid}"> 
+            <input type=submit value="검색" class="submit"><br>  
+    <div style="margin-top: 20px">   
+      <th:block th:if="${message == 0}">
+        <script type="text/javascript">
+          opener.document.formm.id.value="";
+        </script>
+        [[${userid}]]는 이미 사용중인 아이디입니다.
+      </th:block>
+      <th:block th:if="${message == 1 || message == -1}">
+        [[${userid}]]는 사용 가능한 ID입니다.
+        <input type="button" value="사용" class="cancel" onclick="idok()">
+      </th:block>
+    </div>
+  </form>
+</div>  
+</body>
+<th:block th:insert="~{includes/footer}"></th:block>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8">
+
+<style>
+	.disabled {
+		display: none;
+	}
+	
+	.active {
+		font-weight: 700;
+	}
+	
+	#page_area {
+		margin:0 auto;
+	}
+	
+	#page_area ul li {
+		list-style: none;
+		display: inline-block;
+	}
+
+</style>
+
+<!-- 페이지 번호가 표시되는 영역 구현 -->
+<div id="page_area">
+	<ul class="pagination" th:with="start=${T(java.lang.Math).floor(foodScanVo.pageInfo.number/10)*10 + 1},
+														   last=(${start + 9 < foodScanVo.pageInfo.totalPages ? start+9 : foodScanVo.pageInfo.totalPages})">
+  		<th:block th:with="
+  			next_url=${foodScanVo.recommend} ? 'food_recommend' : 'food_scan',
+  			firstPage=@{${next_url}(page=1)},
+  			previous=@{${next_url}(page=${foodScanVo.pageInfo.number})},
+  			next=@{${next_url}(page=${foodScanVo.pageInfo.number + 2})},
+  			lastPage=@{${next_url}(page=${foodScanVo.pageInfo.totalPages})}">
+  																	   	
+			<!-- 첫 페이지로 가기 버튼 -->
+			<li class="paging">
+				<a th:href="${firstPage}" aria-label="First">
+					<span aria-hidden="true">First</span>
+				</a>
+			</li>
+			<!--  이전 페이지로 가기 버튼  -->
+			<li class="paging">
+				<th:block th:if="${foodScanVo.pageInfo.number == 0}">
+					<span aria-hidden="true">&lt;</span>
+				</th:block>
+				<th:block th:unless="${foodScanVo.pageInfo.number == 0}">
+					<a th:href="${previous}" aria-label="Previous">
+						<span aria-hidden="true">&lt;</span>
+					</a>
+				</th:block>
+			</li>
+			
+	
+			<!-- [1][2][3]... 표시 부분 -->
+			<li th:each="page : ${#numbers.sequence(start, last)}" th:class="${page == foodScanVo.pageInfo.number + 1} ? 'active'" class="paging">
+				<a th:text="${page}" th:href="@{${next_url}(page=${page})}"></a> 
+			</li>
+		
+			<!--  다음 페이지로 -->
+			<li class="paging">
+				<th:block th:if="${foodScanVo.pageInfo.number+1 == foodScanVo.pageInfo.totalPages}">
+					<span aria-hidden="true">&gt;</span>
+				</th:block>
+				<th:block th:unless="${foodScanVo.pageInfo.number+1 == foodScanVo.pageInfo.totalPages}">
+					<a th:href="${next}" aria-label="Previous">
+						<span aria-hidden="true">&gt;</span>
+					</a>
+				</th:block>
+			</li>
+						
+			<!-- 맨 마지막 페이지로 이동 -->
+			<li>
+				<a th:href="${lastPage}" aria-label="Last">
+					<span aria-hidden="true">Last</span>
+				</a>
+			</li>
+		</th:block>
+	</ul>
+</div>
+
+
+
+

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:insert="~{/includes/headerMain}"></th:block>
+<meta charset="UTF-8">
+
+<h1><a href="/mainpage"><img alt="foodNaviFont" class="foodNaviFont" src="/assets/images/foodNaviFont.png"></a></h1>
+<!-- myChange -->
+<article id="box">
+    <h2 class="major">나의 변화</h2>
+    <canvas id="myChart"></canvas>
+    <form action="/user_change_weight" method="post">
+            <label for="userKg">오늘 내 체중은?</label>
+            <div class="user-container">
+                <input id="userKg" name="userKg" type="text"/>
+                <input class="primary" type="submit" id="userKgRecord" value="기록하기"/>
+            </div>
+    </form>
+
+</article>
+
+<script src="//code.jquery.com/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script th:inline="javascript">
+    /* Thymeleaf를 사용하여 데이터를 배열로 변환합니다. */
+    var changes = /*[[${changes}]]*/ [];
+    var labels = /*[[${labels}]]*/ [];
+
+    /* 데이터 배열을 숫자 배열로 변환합니다. */
+    var data = changes.map(function (item) {
+        return parseFloat(item);
+    });
+
+    /* Chart.js 차트 생성 */
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '체중',
+                data: data,
+                borderWidth: 1,
+                borderColor: 'rgb(235,205,54)',
+                backgroundColor: 'rgba(235,205,54,0.25)',
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+
+    $(document).on('keydown', function (event) {
+        if (event.key == "Enter") {
+            event.preventDefault();
+            $('#userKgRecord').click();
+        }
+    });
+</script>
+
+
+<div class="fixed-bottom">
+    <th:block th:insert="~{includes/toggleChat}"></th:block>
+</div>
+
+<th:block th:insert="~{includes/footer}"></th:block>

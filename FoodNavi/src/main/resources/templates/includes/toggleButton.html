@@ -1,0 +1,62 @@
+<!-- toggleButton.html -->
+<div id="toggleButton" class="box">
+
+
+    <div class="field">
+        <label for="purpose">목표</label>
+        <select name="purpose" id="purpose">
+			<th:block th:each="field : ${foodRecommendVo.purposeCategory}">
+				<option th:if="${field[0] == foodRecommendVo.purpose}" th:value="${field[0]}" selected>[[${field[1]}]]</option>
+				<option th:unless="${field[0] == foodRecommendVo.purpose}" th:value="${field[0]}">[[${field[1]}]]</option>
+			</th:block>
+		</select>
+    </div>
+
+
+    <div class="field">
+        <label for="dietType">식단 종류</label>
+        <select name="dietType" id="dietType">
+			<th:block th:each="field : ${foodRecommendVo.dietTypeCategory}">
+				<option th:if="${field[0] == foodRecommendVo.dietType}" th:value="${field[0]}" selected>[[${field[1]}]]</option>
+				<option th:unless="${field[0] == foodRecommendVo.dietType}" th:value="${field[0]}">[[${field[1]}]]</option>
+			</th:block>
+		</select>
+    </div>
+
+    <div class="field">
+        <label>알레르기 유무</label>
+        <div class="field half  checkbox-button">
+            <th:block th:each="field, iterStat : ${foodRecommendVo.allergyArray}">
+				<div class="field half  checkbox-button">
+					<input class="btn" type="checkbox" name="allergys" th:id="${field[0]}" th:value="${field[0]}" th:if="${foodRecommendVo.allergys[iterStat.index] == 'y'}" checked/>
+					<input class="btn" type="checkbox" name="allergys" th:id="${field[0]}" th:value="${field[0]}" th:unless="${foodRecommendVo.allergys[iterStat.index] == 'y'}"/>
+        			<label th:for="${field[0]}">[[${field[1]}]]</label>
+				</div>
+			</th:block>
+        </div>
+        <label for="allergyEtc">그 외 알레르기를 유발하는 식재료를 입력하세요:</label>
+        <div class="search-container">
+            <input type="text" id="allergyEtc" name="allergyEtc" th:value="${foodRecommendVo.allergyEtc}" class="searchWord">
+        </div>
+    </div>
+
+    <div class="field">
+        <label for="vegetarian">채식 여부</label>
+        <select name="vegetarian" id="vegetarian">
+            <option value="0" th:if="${foodRecommendVo.vegetarian == '0'}" selected>해당없음</option>
+            <option value="0" th:unless="${foodRecommendVo.vegetarian == '0'}">해당없음</option>
+            <option value="1" th:if="${foodRecommendVo.vegetarian == '1'}" selected>폴로-페스코(육상동물 금지)</option>
+            <option value="1" th:unless="${foodRecommendVo.vegetarian == '1'}">폴로-페스코(육상동물 금지)</option>
+            <option value="2" th:if="${foodRecommendVo.vegetarian == '2'}" selected>페스코(육상동물+조류 금지)</option>
+            <option value="2" th:unless="${foodRecommendVo.vegetarian == '2'}">페스코(육상동물+조류 금지)</option>
+            <option value="3" th:if="${foodRecommendVo.vegetarian == '3'}" selected>락토-오보(육상동물+조류+어패류 금지)</option>
+            <option value="3" th:unless="${foodRecommendVo.vegetarian == '3'}">락토-오보(육상동물+조류+어패류 금지)</option>
+            <option value="4" th:if="${foodRecommendVo.vegetarian == '4'}" selected>락토(육상동물+조류+어패류+알 금지)</option>
+            <option value="4" th:unless="${foodRecommendVo.vegetarian == '4'}">락토(육상동물+조류+어패류+알 금지)</option>
+            <option value="5" th:if="${foodRecommendVo.vegetarian == '5'}" selected>비건(육상동물+조류+어패류+알+유제품 금지)</option>
+            <option value="5" th:unless="${foodRecommendVo.vegetarian == '5'}">비건(육상동물+조류+어패류+알+유제품 금지)</option>
+        </select>
+    </div>
+</div>
+
+<input type="button" id="toggleButtonControl" class="primary" value="상세조건">

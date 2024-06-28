@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:insert="~{/includes/headerMain}"></th:block>
+<meta charset="UTF-8">
+<script th:inline="javascript">
+    function historyRecord() {
+        var historyData = [];
+
+        // 각 행의 데이터를 객체로 만들어 배열에 추가
+        $("#box table tr").each(function () {
+            var food_name = $(this).find("input[name='history_food_name']").val();
+            var serveNumber = $(this).find("input[name='history_serveNumber']").val();
+
+            historyData.push({
+                food_name: food_name,
+                serveNumber: serveNumber
+            });
+        });
+
+        // historyData 배열을 JSON 문자열로 변환하여 서버로 전송
+        $.ajax({
+            type: "POST",
+            url: "/history_record_update",
+            data: JSON.stringify(historyData),
+            contentType: "application/json",
+            success: function (response) {
+                alert("성공적으로 전송되었습니다.");
+            },
+            error: function (error) {
+                alert("전송에 실패했습니다.");
+            }
+        });
+    }
+
+
+    function delete_history(button) {
+        // 행의 데이터를 가져옴
+        var row = $(button).closest('tr');
+        var food_name = row.find("input[name='history_food_name']").val();
+        var serveNumber = row.find("input[name='history_serveNumber']").val();
+        var hseq = row.find("input[name='history_hseq']").val();
+        var historyData = [];
+        historyData.push({
+            food_name: food_name,
+            serveNumber: serveNumber,
+            hseq: hseq
+        });
+
+        // 서버로 삭제 요청
+        $.ajax({
+            type: "POST",
+            url: "/delete_history_record",
+            data: JSON.stringify(historyData),
+            contentType: "application/json",
+            success: function (historyData) {
+                alert("성공적으로 삭제되었습니다.");
+                // 행을 화면에서 제거
+                row.remove();
+            },
+            error: function (error) {
+                alert("삭제에 실패했습니다.");
+            }
+        });
+    }
+
+    function goBack() {
+        history.go(-1);
+    }
+</script>
+<h1><a href="/mainpage"><img alt="foodNaviFont" class="foodNaviFont" src="/assets/images/foodNaviFont.png"></a></h1>
+
+<article id="box">
+    <div id="morning-section">
+        <h2 class="major">아침</h2>
+        <!-- 아침에 먹은 음식 기록 테이블 -->
+        <table id="morning-table">
+            <tr th:each="history : ${userHistoryList}" th:if="${history.mealType == 'morning'}">
+                <td>
+                    <input name="history_food_name" readOnly th:value="${history.food.name}"
+                           type="text">
+                </td>
+                <td>
+                    <input id="history_serveNumber" name="history_serveNumber" th:value="${history.serveNumber}"
+                           type="number">
+                </td>
+                <td>
+                    <span th:text="${history.servedDate}"></span>
+                    <input type="hidden" name="history_hseq" th:value="${history.hseq}">
+                </td>
+                <td>
+                    <input onclick="delete_history(this)" type="button" value="삭제">
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="lunch-section">
+        <h2 class="major">점심</h2>
+        <!-- 점심에 먹은 음식 기록 테이블 -->
+        <table id="lunch-table">
+            <tr th:each="history : ${userHistoryList}" th:if="${history.mealType == 'lunch'}">
+                <td>
+                    <input name="history_food_name" readOnly th:value="${history.food.name}"
+                           type="text">
+                </td>
+                <td>
+                    <input name="history_serveNumber" th:value="${history.serveNumber}"
+                           type="number">
+                </td>
+                <td>
+                    <span th:text="${history.servedDate}"></span>
+                    <input type="hidden" name="history_hseq" th:value="${history.hseq}">
+                </td>
+                <td>
+                    <input onclick="delete_history(this)" type="button" value="삭제">
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="dinner-section">
+        <h2 class="major">저녁</h2>
+        <!-- 저녁에 먹은 음식 기록 테이블 -->
+        <table id="dinner-table">
+    <tr th:each="history : ${userHistoryList}" th:if="${history.mealType == 'dinner'}">
+        <td>
+            <input type="text" name="history_food_name" th:value="${history.food.name}" readOnly>
+        </td>
+        <td>
+            <input type="number" name="history_serveNumber" th:value="${history.serveNumber}">
+        </td>
+        <td>
+            <span th:text="${history.servedDate}"></span>
+            <input type="hidden" name="history_hseq" th:value="${history.hseq}">
+        </td>
+        <td>
+            <input type="button" value="삭제" onclick="delete_history(this)">
+        </td>
+    </tr>
+</table>
+    </div>
+
+    <div id="snack-section">
+        <h2 class="major">간식</h2>
+        <!-- 간식에 먹은 음식 기록 테이블 -->
+        <table id="snack-table">
+    <tr th:each="history : ${userHistoryList}" th:if="${history.mealType == 'snack'}">
+        <td>
+            <input type="text" name="history_food_name" th:value="${history.food.name}" readOnly>
+        </td>
+        <td>
+            <input type="number" name="history_serveNumber" th:value="${history.serveNumber}">
+        </td>
+        <td>
+            <span th:text="${history.servedDate}"></span>
+            <input type="hidden" name="history_hseq" th:value="${history.hseq}">
+        </td>
+        <td>
+            <input type="button" value="삭제" onclick="delete_history(this)">
+        </td>
+    </tr>
+</table>
+    </div>
+</article>
+
+<th:block th:insert="~{includes/footer}"></th:block>

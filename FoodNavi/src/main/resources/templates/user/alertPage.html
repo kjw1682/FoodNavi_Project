@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alert Page</title>
+</head>
+<body>
+<!-- JavaScript 코드를 통해 alert 호출 -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var message = /*[[${msg}]]*/ '';
+    var warning = /*[[${warn}]]*/'';
+    if (message != null && warning == null) {
+        alert(message);
+        window.location.replace("/user_membership");
+    }
+
+    if (message == null && warning != null) {
+        alert(warning);
+        window.location.replace("/user_mypage_view");
+    }
+
+    /*]]>*/
+</script>
+</body>
+</html>

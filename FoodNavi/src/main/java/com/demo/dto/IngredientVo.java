@@ -1,0 +1,16 @@
+package com.demo.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
+public class IngredientVo {
+    private int cnt;
+    private String ingredientName;
+    private int ingredientAmount;
+}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8">
+
+<style>
+table {
+	border: 1px solid black;
+	width: 1600px;
+	border-collapse:collapse;
+}
+
+th, td {
+	border: 1px solid black;
+}
+</style>
+
+<!-- 리스트가 표시되는 영역 구현 -->
+<div id="list_area">
+   	<table>
+   		<tr>
+   			<th>이미지</th>
+   			<th>이름</th>
+   			<th>칼로리</th>
+   		</tr>
+   		<th:block th:if="${foodScanVo.pageInfo.totalPages == 0}">
+   			<tr><td colspan=3>항목 없음</td></tr>
+   		</th:block>
+   		<th:block th:unless="${foodScanVo.pageInfo.totalPages == 0}">
+	   		<th:block th:each="food : ${foodScanVo.foodList}">
+	    		<tr>      
+	     			<td th:if="${food.img == null}">없음</td>
+	     			<td th:if="${food.img != null}"><img th:src="${food.img}"></td>
+	     			<td><a th:href="@{food_detail(fseq=${food.fseq})}">[[${food.name}]]</a></td>
+	     			<td>[[${food.foodDetail.kcal}]]</td>
+		        </tr>
+	      	</th:block>
+      	</th:block>
+    </table>
+</div>
+
+
+
+

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8">
+
+<style>
+table {
+	width: 1000px;
+}
+</style>
+
+<!-- 리스트가 표시되는 영역 구현 -->
+<div id="list_area">
+   	<table>
+   		<tr>
+   			<th>이미지</th>
+   			<th>이름</th>
+   			<th>칼로리</th>
+   			<th th:if="${foodScanVo.recommend}">추천점수</th>
+   		</tr>
+   		<th:block th:if="${foodScanVo.pageInfo.totalPages == 0}">
+   			<tr><td colspan=3 th:unless="${foodScanVo.recommend}">항목 없음</td></tr>
+   			<tr><td colspan=4 th:if="${foodScanVo.recommend}">항목 없음</td></tr>
+   		</th:block>
+   		<th:block th:unless="${foodScanVo.pageInfo.totalPages == 0}">
+	   		<th:block th:if="${foodScanVo.recommend}">
+	   			<th:block th:each="foodVo : ${foodRecommendList}">
+		    		<tr class="foodList">
+		     			<td><img class="img" src="/assets/images/nonImg.png" th:if="${foodVo.food.img == null}">
+							<img class="img" src="/assets/images/img.png" th:if="${foodVo.food.img != null}"></td>
+		     			<td><a th:href="@{food_detail(fseq=${foodVo.food.fseq}, type=s)}">[[${foodVo.food.name}]]</a></td>
+		     			<td>[[${foodVo.kcal}]]kcal</td>
+		     			<td>
+		     				<span class="satisfaction" th:title="${foodVo.scoreView+'%'}" th:alt="${foodVo.scoreView+'%'}">
+						    	<img class="star" th:if="${foodVo.starScore == 0}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 1}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 2}" src="/assets/images/star-full.png">
+						    	<img class="star" th:if="${foodVo.starScore <= 2}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 3}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 4}" src="/assets/images/star-full.png">
+						    	<img class="star" th:if="${foodVo.starScore <= 4}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 5}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 6}" src="/assets/images/star-full.png">
+						    	<img class="star" th:if="${foodVo.starScore <= 6}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 7}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 8}" src="/assets/images/star-full.png">
+						    	<img class="star" th:if="${foodVo.starScore <= 8}" src="/assets/images/star-empty.png">
+						    	<img class="star" th:if="${foodVo.starScore == 9}" src="/assets/images/star-half.png">
+						    	<img class="star" th:if="${foodVo.starScore >= 10}" src="/assets/images/star-full.png">
+		    				</span>
+		    			</td>
+			        </tr>
+		      	</th:block>
+	   		</th:block>
+	   		<th:block th:unless="${foodScanVo.recommend}">
+		   		<th:block th:each="foodVo : ${foodList}">
+		    		<tr>      
+		     			<td><img class="img" src="/assets/images/nonImg.png" th:if="${foodVo.food.img == null}">
+							<img class="img" src="/assets/images/img.png" th:if="${foodVo.food.img != null}"></td>
+		     			<td><a th:href="@{food_detail(fseq=${foodVo.food.fseq}, type=s)}">[[${foodVo.food.name}]]</a></td>
+		     			<td>[[${foodVo.kcal}]]kcal</td>
+			        </tr>
+		      	</th:block>
+	      	</th:block>
+      	</th:block>
+    </table>
+</div>
+
+
+
+

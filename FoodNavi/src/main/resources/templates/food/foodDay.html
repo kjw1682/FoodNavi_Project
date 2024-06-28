@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:insert="~{/includes/headerMain}"></th:block>
+<meta charset="UTF-8">
+
+<h1><a href="/mainpage"><img alt="foodNaviFont" class="foodNaviFont" src="/assets/images/foodNaviFont.png"></a></h1>
+<!-- dietRecommendation -->
+<article id="box">
+    <h2 class="major">식단 추천</h2>
+    <form id="recommendForm" method="post">
+        <input id="mealTime" name="mealTime" type="hidden" value=""/>
+        <input id="recommend" name="recommend" type="hidden" value=true />
+        <div class="foodContainer">
+
+            <div class="box" onclick="food_recommend('morning')">
+                <h2>아침</h2>
+                <img alt="아침" class="foodIcon" src="/assets/images/fresh.png">
+                <div class="foodDescription">
+                    <img alt="불" class="kalIcon" src="/assets/images/fire.png"> 총 <span class="kcalNum">[[${userVo.kcalMorning}]]kcal</span>를
+                    섭취하였습니다 <img alt="불" class="kalIcon" src="/assets/images/fire.png">
+                </div>
+            </div>
+            <div class="box" onclick="food_recommend('lunch')">
+                <h2>점심</h2>
+                <img alt="점심" class="foodIcon" src="/assets/images/rice.png">
+                <div class="foodDescription">
+                    <img alt="불" class="kalIcon" src="/assets/images/fire.png"> 총 <span class="kcalNum">[[${userVo.kcalLunch}]]kcal</span>를
+                    섭취하였습니다 <img alt="불" class="kalIcon" src="/assets/images/fire.png">
+                </div>
+            </div>
+            <div class="box" onclick="food_recommend('dinner')">
+                <h2>저녁</h2>
+                <img alt="저녁" class="foodIcon" src="/assets/images/steak.png">
+                <div class="foodDescription">
+                    <img alt="불" class="kalIcon" src="/assets/images/fire.png"> 총 <span class="kcalNum">[[${userVo.kcalDinner}]]kcal</span>를
+                    섭취하였습니다 <img alt="불" class="kalIcon" src="/assets/images/fire.png">
+                </div>
+            </div>
+            <div class="box" onclick="food_recommend('snack')">
+                <h2>간식</h2>
+                <img alt="간식" class="foodIcon" src="/assets/images/snack.png">
+                <div class="foodDescription">
+                    <img alt="불" class="kalIcon" src="/assets/images/fire.png"> 총 <span class="kcalNum">[[${userVo.kcalSnack}]]kcal</span>를
+                    섭취하였습니다 <img alt="불" class="kalIcon" src="/assets/images/fire.png">
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="field half">
+            <input id="my_history" onclick="goMyHistory()" type="button" value="나의 식단 기록"/>
+            <input id="confirm_history" onclick="goConfirmHistory()" type="button" value="식단 바구니"/>
+            <th:block th:insert="~{includes/toggleButton}"></th:block>
+        </div>
+
+    </form>
+</article>
+
+<th:block th:insert="~{includes/footer}"></th:block>
+
+<script src="/assets/js/menuToggle.js"></script>
+<script src="/assets/js/chatToggle.js"></script>
+
+<script>
+
+    function food_recommend(mealTime) {
+		$("#mealTime").val(mealTime);
+		$("#recommendForm").attr("action", "loading").submit();
+    }
+
+    // function food_recommend(mealTime) {
+    //     $("#mealTime").val(mealTime)
+    //     $("#recommendForm").attr("action", "food_recommend").submit();
+    // }
+
+    function goMyHistory() {
+        window.location.href="foodHistory_view";
+    }
+
+    function goConfirmHistory() {
+        window.location.href="foodTodayHistory_view";
+    }
+</script>

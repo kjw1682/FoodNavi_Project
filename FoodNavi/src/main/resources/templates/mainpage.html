@@ -1,0 +1,149 @@
+<!DOCTYPE HTML>
+<html lang="ko">
+<head>
+    <title>FoodNavi</title>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport"/>
+    <link href="/assets/css/main.css" rel="stylesheet"/>
+    <link href="/assets/css/bgMain.css" rel="stylesheet"/>
+    <noscript>
+        <link href="/assets/css/noscript.css" rel="stylesheet"/>
+    </noscript>
+</head>
+<body class="is-preload">
+
+<!-- Wrapper -->
+<div id="wrapper">
+
+    <!-- Header -->
+    <header id="header">
+        <img src="/assets/images/foodNavi.png" alt="foodNavi" class="logo">
+        <div class="content">
+            <div class="inner">
+                <h1>[[${userVo.user.name}]] 님을 위한 오늘의 식단</h1>
+
+                <div>
+                    <label class="userBodyText" for="kcalChart">오늘 섭취한 칼로리</label>
+
+                    <div class="chart-container">
+                            <span th:if="${userVo.kcalToday > userVo.EER}">
+                                <img class="mainWarning" src="/assets/images/warning.png">
+                            </span>
+                        <div class="chart" id="kcalChart">
+                            <div class="chart-bar"></div>
+                        </div>
+                            <span th:if="${userVo.kcalToday > userVo.EER}">
+                                <img class="mainWarning" src="/assets/images/warning.png">
+                            </span>
+                    </div>
+
+                    <a class="userBodyNum">
+                        <span>[[${userVo.kcalToday}]]kcal/[[${userVo.EER}]]kcal</span>
+                    </a>
+                </div>
+
+                <div class="chart-container">
+                    <div>
+                        <label class="userBodyText" for="carbohydrateChart">탄수화물</label>
+                        <div class="chart" id="carbohydrateChart">
+                            <div class="chart-bar"></div>
+                        </div>
+                        <a class="userBodyNum">
+                            <span>[[${userVo.carbToday}]]g/[[${userVo.properCarb}]]g</span>
+                        </a>
+                    </div>
+                    <div>
+                        <label class="userBodyText" for="proteinChart">단백질</label>
+                        <div class="chart" id="proteinChart">
+                            <div class="chart-bar"></div>
+                        </div>
+                        <a class="userBodyNum">
+                            <span>[[${userVo.prtToday}]]g/[[${userVo.properPrt}]]g</span>
+                        </a>
+                    </div>
+                    <div>
+                        <label class="userBodyText" for="fatChart">지방</label>
+                        <div class="chart" id="fatChart">
+                            <div class="chart-bar"></div>
+                        </div>
+                        <a class="userBodyNum">
+                            <span>[[${userVo.fatToday}]]g/[[${userVo.properFat}]]g</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="foodReco">
+                    <button class="primary" id="foodRecoButton" name="dietRecommendation" value="recommend">
+                        <a href="/foodRecommendation">식단추천</a></button>
+                </div>
+            </div>
+        </div>
+
+        <nav>
+            <ul>
+                <!--각 href 링크는 컨트롤러와 연결해야 합니다.-->
+                <li><a href="/board_list">커뮤니티</a></li>
+                <li><a href="/user_mychange_view">나의변화</a></li>
+                <li><a href="/user_myactivity_view">나의활동</a></li>
+                <li><a href="/food_scan">식단검색</a></li>
+                <li><a href="/pw_check">마이페이지</a></li>
+            </ul>
+        </nav>
+
+        <!--관리자 아이디로 로그인 하면 보이게 할 것-->
+        <!--        <button class="primary" name="admin" id="admin" value="admin"><a href="#admin">관리자</a></button>-->
+        <!--로그아웃 버튼-->
+        <button id="logout" name="logout" value="logout"><a href="logout">로그아웃</a></button>
+
+    </header>
+
+    <div class="fixed-bottom">
+        <th:block th:insert="~{includes/toggleChat}"></th:block>
+    </div>
+</div>
+<!-- Main -->
+<div id="main">
+
+
+    <!-- Elements -->
+    <article id="elements">
+        <h2 class="major">Elements</h2>
+
+        <pre><code>i = 0;
+
+while (!deck.isInOrder()) {
+    print 'Iteration ' + i;
+    deck.shuffle();
+    i++;
+}
+
+print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
+
+
+    </article>
+
+</div>
+
+<!-- Footer -->
+<footer id="footer">
+    <p class="copyright">&copy; Team Navigation. </p>
+</footer>
+
+<!-- BG -->
+<div id="bg"></div>
+
+
+
+<!-- Scripts -->
+<script src="/assets/js/jquery.min.js"></script>
+<script src="/assets/js/browser.min.js"></script>
+<script src="/assets/js/breakpoints.min.js"></script>
+<script src="/assets/js/util.js"></script>
+<script src="/assets/js/main.js"></script>
+<script src="/assets/js/chart.js"></script>
+<script src="/assets/js/chatToggle.js"></script>
+
+
+
+</body>
+</html>

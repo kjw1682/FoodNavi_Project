@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>비밀번호 확인</title>
+    <th:block th:insert="~{/includes/headerLogin}"></th:block>
+    <script th:inline="javascript" type="text/javascript">
+        function pwok() {
+            /*<![CDATA[*/
+            var sessionpw = /*[[${sessionpw}]]*/'';
+            if (($("#userpw").val()) != sessionpw) {
+                alert("비밀번호가 일치하지 않습니다.");
+                $("#userpw").focus();
+            } else {
+                alert("비밀번호가 일치합니다.")
+                window.location.href = "user_mypage_view";
+            }
+            /*]]>*/
+        }
+    </script>
+</head>
+<body>
+<div id="wrap">
+    <h1><a href="/mainpage"><img alt="foodNaviFont" class="foodNaviFont" src="/assets/images/foodNaviFont.png"></a></h1>
+
+    <h2>비밀번호 확인</h2>
+    <form action="#" id="theform" method=get name=formm style="margin-right:0 ">
+        User Pwd
+        <div class="search-container">
+        <input id="userpw" name="userpw" type=password>
+        <input onclick="pwok()" id="confirmButton" type=button value="확인">
+        </div>
+    </form>
+    <a class="button" href="/mainpage">이전</a>
+</div>
+</body>
+<th:block th:insert="~{includes/footer}"></th:block>
+
+<script>
+    $(document).on('keydown', function (event) {
+        if (event.key == "Enter") {
+            event.preventDefault();
+            pwok();
+        }
+    });
+</script>
+
+</html>

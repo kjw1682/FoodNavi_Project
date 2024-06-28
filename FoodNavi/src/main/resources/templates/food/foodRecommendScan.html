@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:insert="~{/includes/headerMain}"></th:block>
+<meta charset="UTF-8">
+
+<h1><a href="/mainpage"><img src="/assets/images/foodNaviFont.png" alt="foodNaviFont" class="foodNaviFont"></a></h1>
+
+<form name="scanForm" id="scanForm" method="post">
+    <input type="hidden" name="page" value=0>
+    <input type="hidden" name="recommend" id="recommend" value=false>
+    <input type="hidden" name="scan" id="scan" value=true>
+    <div id="toggleButton" class="box">
+        <table>
+            <tr>
+                <td>검색</td>
+                <td>
+                    <select name="searchField">
+                        <th:block th:each="field : ${foodScanVo.searchType}">
+                            <option th:if="${field[0] == foodScanVo.searchField}" th:value="${field[0]}" selected>[[${field[1]}]]</option>
+                            <option th:unless="${field[0] == foodScanVo.searchField}" th:value="${field[0]}">[[${field[1]}]]</option>
+                        </th:block>
+                    </select>
+                </td>
+                <td colspan="2">
+                    <input type="text" name="searchWord" th:value="${foodScanVo.searchWord}"/>
+                </td>
+            </tr>
+            <tr>
+                <td>제외</td>
+                <td>
+                    <select name="banField">
+                        <th:block th:each="field : ${foodScanVo.searchType}">
+                            <option th:if="${field[0] == foodScanVo.banField}" th:value="${field[0]}" selected>[[${field[1]}]]</option>
+                            <option th:unless="${field[0] == foodScanVo.banField}" th:value="${field[0]}">[[${field[1]}]]</option>
+                        </th:block>
+                    </select>
+                </td>
+                <td colspan="2">
+                    <input type="text" name="banWord" th:value="${foodScanVo.banWord}"/>
+                </td>
+            </tr>
+            <tr>
+                <td style="width:14%">목표</td>
+                <td style="width:36%">
+                    <select name="purpose">
+                        <th:block th:each="field : ${foodScanVo.purposeCategory}">
+                            <option th:if="${field[0] == foodScanVo.purpose}" th:value="${field[0]}" selected>[[${field[1]}]]</option>
+                            <option th:unless="${field[0] == foodScanVo.purpose}" th:value="${field[0]}">[[${field[1]}]]</option>
+                        </th:block>
+                    </select>
+                </td>
+                <td style="width:14%">식단</td>
+                <td style="width:36%">
+                    <select name="dietType">
+                        <th:block th:each="field : ${foodScanVo.dietTypeCategory}">
+                            <option th:if="${field[0] == foodScanVo.dietType}" th:value="${field[0]}" selected>[[${field[1]}]]</option>
+                            <option th:unless="${field[0] == foodScanVo.dietType}" th:value="${field[0]}">[[${field[1]}]]</option>
+                        </th:block>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td style="width:8%">음식</td>
+                <td style="width:14%">
+                    <select name="foodType">
+                        <th:block th:each="field : ${foodScanVo.foodTypeCategory}">
+                            <option th:if="${field[0] == foodScanVo.foodType}" th:value="${field[0]}" selected>[[${field[1]}]]</option>
+                            <option th:unless="${field[0] == foodScanVo.foodType}" th:value="${field[0]}">[[${field[1]}]]</option>
+                        </th:block>
+                    </select>
+                </td>
+                <td style="width:8%">채식</td>
+                <td cols="2" style="width:14%">
+                    <select name="vegetarian">
+                        <th:block th:each="field : ${foodScanVo.vegetarianCategory}">
+                            <option th:if="${field[0] == foodScanVo.vegetarian}" th:value="${field[0]}" selected>[[${field[1]}]]</option>
+                            <option th:unless="${field[0] == foodScanVo.vegetarian}" th:value="${field[0]}">[[${field[1]}]]</option>
+                        </th:block>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>알레르기</td>
+                <td>
+                    <th:block th:each="field, iterStat : ${foodScanVo.allergyArray}">
+                        <div class="field half  checkbox-button">
+                            <input class="btn" type="checkbox" name="allergys" th:id="${field[0]}" th:value="${field[0]}" th:if="${foodScanVo.allergys[iterStat.index] == 'y'}" checked/>
+                            <input class="btn" type="checkbox" name="allergys" th:id="${field[0]}" th:value="${field[0]}" th:unless="${foodScanVo.allergys[iterStat.index] == 'y'}"/>
+                            <label th:for="${field[0]}">[[${field[1]}]]</label>
+                        </div>
+                    </th:block>
+                </td>
+                <td>식사</td>
+                <td>
+                    <th:block th:each="field, iterStat : ${foodScanVo.mealTimeArray}">
+                        <div class="field half  radio-button">
+                            <input class="btn" type="radio" name="mealTime" th:id="${field[0]}" th:value="${field[0]}" onclick="meal_click(this)" th:if="${foodScanVo.mealTime[iterStat.index] == field[0]}" checked/>
+                            <input class="btn" type="radio" name="mealTime" th:id="${field[0]}" th:value="${field[0]}" onclick="meal_click(this)" th:unless="${foodScanVo.mealTime[iterStat.index] == field[0]}"/>
+                            <label th:for="${field[0]}">[[${field[1]}]]</label>
+                        </div>
+                    </th:block>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="8" align="center">
+                    <input type="button" value="일반검색" onclick="food_scan()"/>
+                    <input type="button" value="추천검색" onclick="food_recommend()"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+
+<th:block th:insert="~{includes/footer}"></th:block>
+<script src="/assets/js/foodRecommend.js/"></script>
